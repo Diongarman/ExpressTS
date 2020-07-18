@@ -1,5 +1,10 @@
 import { Router, Request, Response } from "express";
 
+//below patches up poor type def file
+interface RequestWithBody extends Request {
+  body: { [key: string]: string | undefined };
+}
+
 const users = { user1: "password" };
 
 const router = Router();
@@ -21,10 +26,14 @@ router.get("/login", (req: Request, res: Response) => {
   );
 });
 
-router.post("/login", (req: Request, res: Response) => {
+router.post("/login", (req: RequestWithBody, res: Response) => {
   const { email } = req.body;
-  console.log(req.body);
-  res.send(`Hell ${email}`);
+
+  if (email) {
+    res.send(`Hell ${email.toUpperCase()}`);
+  } else {
+    res.send("you must provide an email");
+  }
 });
 
 export { router };
