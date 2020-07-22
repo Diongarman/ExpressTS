@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 
 //below patches up poor type def file
 interface RequestWithBody extends Request {
@@ -7,8 +7,36 @@ interface RequestWithBody extends Request {
 
 const users = { user1: "password" };
 
+function requiresAuth(req: Request, res: Response, next: NextFunction) {
+  if (req.session && req.session.isLoggedIn) {
+    next();
+    return;
+  }
+
+  res.status(403);
+  res.send("Not permitted");
+}
 const router = Router();
-router.get("/", (req: Request, res: Response) => res.send("hi there"));
+
+router.get("/", (req: Request, res: Response) => {
+  if (req.session && req.session.isLoggedIn) {
+    res.send(`
+    <div>
+        <div>You are logged in</div>
+        <a href="logout">Logout</a>
+    </div>
+    
+    `);
+  } else {
+    res.send(`
+    <div>
+        <div>You must sign in</div>
+        <a href="login">Login</a>
+    </div>
+    
+    `);
+  }
+});
 router.get("/login", (req: Request, res: Response) => {
   res.send(
     `<form method="POST">
@@ -26,14 +54,24 @@ router.get("/login", (req: Request, res: Response) => {
   );
 });
 
-router.post("/login", (req: RequestWithBody, res: Response) => {
-  const { email } = req.body;
+router.get("/logout", (req: Request, res: Response) => {
+  req.session = { isLoggedIn: false };
+  res.redirect("/");
+});
 
-  if (email) {
-    res.send(`Hell ${email.toUpperCase()}`);
+router.post("/login", (req: RequestWithBody, res: Response) => {
+  const { email, password } = req.body;
+
+  if (email === "diongarman@gmail.com" && password === "1234") {
+    req.session = { isLoggedIn: true };
+    res.redirect("/");
   } else {
-    res.send("you must provide an email");
+    res.send("invalid email or password");
   }
+});
+
+router.get("/protected", requiresAuth, (req: Request, res: Response) => {
+  res.send("welcome to protected route logged in user!");
 });
 
 export { router };

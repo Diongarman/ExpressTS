@@ -1,11 +1,18 @@
 import express, { Request, Response } from "express";
 import { router } from "./routes/loginRoutes";
 var bodyParser = require("body-parser");
+import cookieSession from "cookie-session";
 
 const app = express();
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+  })
+);
 
 // parse application/json
 // app.use(bodyParser.json());
