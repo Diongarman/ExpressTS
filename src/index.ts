@@ -6,7 +6,6 @@ import { AppRouter } from "./AppRouter";
 
 const app = express();
 
-// parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   cookieSession({
@@ -14,10 +13,6 @@ app.use(
     keys: ["key1", "key2"],
   })
 );
-
-// parse application/json
-// app.use(bodyParser.json());
-
 app.use(router);
 app.use(AppRouter.getInstance());
 
