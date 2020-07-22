@@ -1,6 +1,5 @@
-import { Router, Request, Response, NextFunction } from "express";
-
-import { get } from "./decorators/routes";
+import { Request, Response } from "express";
+import { get, Controller } from "./decorators";
 
 @Controller("")
 class LoginController {
