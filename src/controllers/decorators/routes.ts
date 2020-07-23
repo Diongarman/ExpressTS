@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { Methods } from "./Methods";
 import { MetadataKeys } from "./MetadataKeys";
 
+//routes are bound to handlers
 function routeBinder(method: string) {
   return function (path: string) {
     return function (target: any, key: string, desc: PropertyDescriptor): void {

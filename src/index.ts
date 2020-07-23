@@ -4,6 +4,8 @@ var bodyParser = require("body-parser");
 import cookieSession from "cookie-session";
 import { AppRouter } from "./AppRouter";
 
+import "./controllers/loginController";
+
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
