@@ -1,7 +1,26 @@
 import "reflect-metadata";
+import { Request, Response, RequestHandler, NextFunction } from "express";
 import { AppRouter } from "./../../AppRouter";
 import { Methods } from "./Methods";
 import { MetadataKeys } from "./MetadataKeys";
+
+function bodyValidators(validators: string[]): RequestHandler {
+  return function (req: Request, res: Response, next: NextFunction) {
+    if (!req.body) {
+      res.status(422).send("Invalid request");
+      return;
+    }
+    console.log(req.body);
+    for (let validator of validators) {
+      if (!req.body[validator]) {
+        res.status(422).send(`Missing property: ${validator}`);
+        return;
+      }
+    }
+
+    next();
+  };
+}
 
 //Wires up handlers to router
 export function Controller(routePrefix: string) {
@@ -29,9 +48,20 @@ export function Controller(routePrefix: string) {
         Reflect.getMetadata(MetadataKeys.middleware, target.prototype, key) ||
         [];
 
+      const requiredBodyValidators =
+        Reflect.getMetadata(MetadataKeys.validator, target.prototype, key) ||
+        [];
+
+      const validators = bodyValidators(requiredBodyValidators) || [];
+
       //wireup metadata to router object
       if (path) {
-        router[method](`${routePrefix}${path}`, ...middlewares, routeHandler);
+        router[method](
+          `${routePrefix}${path}`,
+          ...middlewares,
+          validators,
+          routeHandler
+        );
       }
     }
   };

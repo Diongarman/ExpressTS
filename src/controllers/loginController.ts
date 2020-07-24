@@ -1,13 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { get, Controller, use } from "./decorators";
+import { get, post, Controller, use, bodyValidator } from "./decorators";
 
 function logger(req: Request, res: Response, next: NextFunction) {
   console.log("A request was made YARGH");
   next();
 }
-console.log("LOGIN CONTROLLA");
 
-@Controller("")
+//below patches up poor type def file
+interface RequestWithBody extends Request {
+  body: { [key: string]: string | undefined };
+}
+
+@Controller("/auth")
 class LoginController {
   @get("/login")
   @use(logger)
@@ -26,5 +30,18 @@ class LoginController {
                 <button>Submit</button>
                 </form>`
     );
+  }
+
+  @post("/login")
+  @bodyValidator("email", "password")
+  postLogin(req: RequestWithBody, res: Response) {
+    const { email, password } = req.body;
+
+    if (email === "diongarman@gmail.com" && password === "1234") {
+      req.session = { isLoggedIn: true };
+      res.redirect("/");
+    } else {
+      res.send("invalid email or password");
+    }
   }
 }
