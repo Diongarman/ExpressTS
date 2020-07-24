@@ -1,10 +1,10 @@
 import express, { Request, Response } from "express";
-import { router } from "./routes/loginRoutes";
 var bodyParser = require("body-parser");
 import cookieSession from "cookie-session";
 import { AppRouter } from "./AppRouter";
 
 import "./controllers/loginController";
+import "./controllers/RootController";
 
 const app = express();
 
@@ -15,7 +15,6 @@ app.use(
     keys: ["key1", "key2"],
   })
 );
-app.use(router);
 app.use(AppRouter.getInstance());
 
 app.listen(3000, () => {
